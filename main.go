@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -27,6 +28,8 @@ func countFileLines(f *os.File) {
 	for input.Scan() {
 		var inputTxt string = input.Text()
 
+		inputTxt = removeLineWhiteSpace(inputTxt)
+
 		var isStringEmpty bool = len(inputTxt) == 0
 		var isLineCommented bool = strings.Contains(inputTxt, "//")
 
@@ -34,4 +37,10 @@ func countFileLines(f *os.File) {
 			fmt.Printf("%s\n", inputTxt)
 		}
 	}
+}
+
+func removeLineWhiteSpace(lineText string) string {
+	space := regexp.MustCompile(`\s+`)
+	formattedString := space.ReplaceAllString(lineText, "")
+	return formattedString
 }
