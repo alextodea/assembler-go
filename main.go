@@ -1,11 +1,10 @@
 package main
 
 import (
+	parser "assembler-go/parser"
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
-	"strings"
 )
 
 func main() {
@@ -26,21 +25,7 @@ func countFileLines(f *os.File) {
 	input := bufio.NewScanner(f)
 
 	for input.Scan() {
-		var inputTxt string = input.Text()
-
-		inputTxt = removeLineWhiteSpace(inputTxt)
-
-		var isStringEmpty bool = len(inputTxt) == 0
-		var isLineCommented bool = strings.Contains(inputTxt, "//")
-
-		if !isStringEmpty && !isLineCommented {
-			fmt.Printf("%s\n", inputTxt)
-		}
+		fileLine := input.Text()
+		parser.ParseInstruction(fileLine)
 	}
-}
-
-func removeLineWhiteSpace(lineText string) string {
-	space := regexp.MustCompile(`\s+`)
-	formattedString := space.ReplaceAllString(lineText, "")
-	return formattedString
 }
