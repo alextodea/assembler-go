@@ -29,9 +29,17 @@ func countFileLines(f *os.File) {
 		parsedInstruction, err := parser.ParseInstruction(fileLine)
 
 		if err != nil {
+			fmt.Println(err)
 			continue
-		} else {
-			fmt.Println(parsedInstruction)
 		}
+
+		// binaryInstruction, err := codeModule.TranslateAssemblyInstructionToBinary(parsedInstruction)
+
+		// if err != nil {
+		// 	f.Close()
+		// }
+
+		fmt.Println("Parsed instruction: ", parsedInstruction)
+
 	}
 }
