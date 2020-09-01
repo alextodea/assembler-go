@@ -2,14 +2,9 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strings"
 )
-
-// receive file line as input
-// replace white space with no space
-// skip line if commented or empty
 
 // ParseInstruction reads an assembly language command, parses it, and provides convenient access to the command’s components (fields and symbols). In addition, removes all white space and comments.
 func ParseInstruction(assemblyCommand string) (map[string]string, error) {
@@ -19,43 +14,51 @@ func ParseInstruction(assemblyCommand string) (map[string]string, error) {
 		return nil, err
 	}
 
-	fmt.Println(assemblyCommand)
+	assemblyCommand = removeCommentFromAssemblyCommand(assemblyCommand)
 
-	// var isStringEmpty bool = len(assemblyCommandWithoutWhiteSpace) == 0
-	// var isLineCommented bool = strings.HasPrefix(assemblyCommandWithoutWhiteSpace, "//")
+	instructionType, err := determineInstructionType(assemblyCommand)
 
-	// if !isStringEmpty && !isLineCommented {
+	if err != nil {
+		return nil, err
+	}
 
-	// 	var formattedAssemblyLine string = removeCommentFromAssemblyCommand(assemblyCommandWithoutWhiteSpace)
+	parserOutcome := map[string]string{}
+	parserOutcome["instructionType"] = instructionType
 
-	// 	isAInstruction := strings.Contains(formattedAssemblyLine, "@")
-	// 	isLInstruction := strings.Contains(formattedAssemblyLine, "(")
-	// 	isCInstruction := strings.Contains(formattedAssemblyLine, "=") || strings.Contains(formattedAssemblyLine, ";")
+	switch instructionType {
+	case "A":
+		parserOutcome["symbol"] = decodeSymbol(assemblyCommand, "@")
+		return parserOutcome, nil
+	case "C":
+		dest, comp, jump := decodeCInstruction(assemblyCommand)
+		parserOutcome["dest"] = dest
+		parserOutcome["comp"] = comp
+		parserOutcome["jump"] = jump
+		return parserOutcome, nil
+	case "L":
+		firstSplit := decodeSymbol(assemblyCommand, "(")
+		parserOutcome["symbol"] = decodeSymbol(firstSplit, ")")
+		return parserOutcome, nil
+	default:
+		return map[string]string{}, errors.New("instruction could not be parsed " + assemblyCommand)
+	}
+}
 
-	parserOutcome := make(map[string]string)
-	// 	switch true {
-	// 	case isAInstruction:
-	// 		parserOutcome["type"] = "A"
-	// 		parserOutcome["symbol"] = decodeSymbol(formattedAssemblyLine, "@")
-	// 		return parserOutcome, nil
-	// 	case isCInstruction:
-	// 		parserOutcome["type"] = "C"
-	// 		dest, comp, jump := decodeCInstruction(formattedAssemblyLine)
-	// 		parserOutcome["dest"] = dest
-	// 		parserOutcome["comp"] = comp
-	// 		parserOutcome["jump"] = jump
-	// 		return parserOutcome, nil
-	// 	case isLInstruction:
-	// 		parserOutcome["type"] = "L"
-	// 		firstSplit := decodeSymbol(formattedAssemblyLine, "(")
-	// 		parserOutcome["symbol"] = decodeSymbol(firstSplit, ")")
-	// 		return parserOutcome, nil
-	// 	default:
-	// 		return map[string]string{}, fmt.Errorf("command could bit be parser: %v", formattedAssemblyLine)
-	// 	}
-	// }
+func determineInstructionType(assemblyCommand string) (string, error) {
+	isAInstruction := strings.Contains(assemblyCommand, "@")
+	isLInstruction := strings.Contains(assemblyCommand, "(")
+	isCInstruction := strings.Contains(assemblyCommand, "=") || strings.Contains(assemblyCommand, ";")
 
-	return parserOutcome, nil
+	switch true {
+	case isAInstruction && !isCInstruction && !isLInstruction:
+		return "A", nil
+	case !isAInstruction && isCInstruction && !isLInstruction:
+		return "C", nil
+	case !isAInstruction && !isCInstruction && isLInstruction:
+		return "L", nil
+	default:
+		return "", errors.New("instruction type cannot be identified")
+	}
 }
 
 func decodeCInstruction(textInput string) (dest, comp, jump string) {
@@ -99,8 +102,7 @@ func removeCommentFromAssemblyCommand(textInput string) string {
 	i := strings.Index(textInput, "//")
 
 	if i > -1 {
-		splittedTextInput := strings.Split(textInput, "//")
-		return splittedTextInput[0]
+		textInput = strings.Split(textInput, "//")[0]
 	}
 	return textInput
 

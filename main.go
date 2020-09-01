@@ -26,7 +26,7 @@ func countFileLines(f *os.File) {
 
 	for input.Scan() {
 		fileLine := input.Text()
-		parsedInstruction, err := parser.ParseInstruction(fileLine)
+		parserOutcome, err := parser.ParseInstruction(fileLine)
 
 		if err != nil {
 			fmt.Println(err)
@@ -39,7 +39,6 @@ func countFileLines(f *os.File) {
 		// 	f.Close()
 		// }
 
-		fmt.Println("Parsed instruction: ", parsedInstruction)
-
+		fmt.Println(parserOutcome)
 	}
 }
