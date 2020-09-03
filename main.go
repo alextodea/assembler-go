@@ -1,8 +1,10 @@
 package main
 
 import (
+	binaryConverter "assembler-go/binaryConverter"
 	parser "assembler-go/parser"
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 )
@@ -17,12 +19,28 @@ func main() {
 		os.Exit(1)
 	}
 
-	countFileLines(f)
-	f.Close()
+	binaryInstructions, err := countFileLines(f)
+
+	if err != nil {
+		f.Close()
+	}
+
+	outputF, err := os.Create(fileName + ".hack")
+
+	if err != nil {
+		outputF.Close()
+	}
+
+	defer f.Close()
+
+	for binaryInstruction := range binaryInstructions {
+		outputF.WriteString(fmt.Sprintf("%15b\n", binaryInstruction))
+	}
 }
 
-func countFileLines(f *os.File) {
+func countFileLines(f *os.File) ([]uint16, error) {
 	input := bufio.NewScanner(f)
+	var binaryInstructions []uint16
 
 	for input.Scan() {
 		fileLine := input.Text()
@@ -33,12 +51,20 @@ func countFileLines(f *os.File) {
 			continue
 		}
 
-		// binaryInstruction, err := codeModule.TranslateAssemblyInstructionToBinary(parsedInstruction)
+		binaryInstruction, err := binaryConverter.TranslateAssemblyInstructionToBinary(parserOutcome)
 
-		// if err != nil {
-		// 	f.Close()
-		// }
+		if err != nil {
+			f.Close()
+		}
 
-		fmt.Println(parserOutcome)
+		if binaryInstruction > 1 {
+			binaryInstructions = append(binaryInstructions, binaryInstruction)
+		}
 	}
+
+	if len(binaryInstructions) < 1 {
+		return binaryInstructions, errors.New("binary instructions file is empty")
+	}
+
+	return binaryInstructions, nil
 }
