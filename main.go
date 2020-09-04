@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -19,26 +20,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	binaryInstructions, err := countFileLines(f)
+	binaryInstructions, err := parseFileLines(f)
 
 	if err != nil {
 		f.Close()
 	}
 
-	outputF, err := os.Create(fileName + ".hack")
+	outputFileName := strings.Split(fileName, ".")[0]
+	outputFileNameAndExtension := outputFileName + ".hack"
+	outputF, err := os.Create(outputFileNameAndExtension)
 
 	if err != nil {
+		fmt.Println("Failed to convert  assembly lines into binary")
 		outputF.Close()
 	}
 
 	defer f.Close()
 
-	for binaryInstruction := range binaryInstructions {
-		outputF.WriteString(fmt.Sprintf("%15b\n", binaryInstruction))
-	}
+	convertAssemblyToBinary(binaryInstructions, outputF)
+	fmt.Println("Succesfully generated binary commands and saved them into " + outputFileNameAndExtension)
 }
 
-func countFileLines(f *os.File) ([]uint16, error) {
+func convertAssemblyToBinary(binaryInstructions []uint16, outputF *os.File) {
+	for _, binaryValue := range binaryInstructions {
+		stringValue := fmt.Sprintf("%016b\n", binaryValue<<0)
+		outputF.WriteString(stringValue)
+	}
+	return
+}
+
+func parseFileLines(f *os.File) ([]uint16, error) {
 	input := bufio.NewScanner(f)
 	var binaryInstructions []uint16
 
@@ -57,9 +68,7 @@ func countFileLines(f *os.File) ([]uint16, error) {
 			f.Close()
 		}
 
-		if binaryInstruction > 1 {
-			binaryInstructions = append(binaryInstructions, binaryInstruction)
-		}
+		binaryInstructions = append(binaryInstructions, binaryInstruction)
 	}
 
 	if len(binaryInstructions) < 1 {

@@ -92,7 +92,7 @@ func processInputFileLine(textInput string) (string, error) {
 	var isLineCommented bool = strings.HasPrefix(processedTextInput, "//")
 
 	if len(processedTextInput) == 0 || isLineCommented {
-		return "", errors.New("file line is either commented or empty: " + processedTextInput)
+		return "", errors.New("didn't parsed this line: " + processedTextInput)
 	}
 
 	return processedTextInput, nil

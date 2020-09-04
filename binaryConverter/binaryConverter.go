@@ -1,8 +1,8 @@
 package code
 
 import (
+	"assembler-go/data"
 	"errors"
-	"fmt"
 	"strconv"
 )
 
@@ -12,7 +12,6 @@ func TranslateAssemblyInstructionToBinary(parserOutcome map[string]string) (uint
 	instructionType := parserOutcome["instructionType"]
 	var binaryInstruction uint16
 
-	fmt.Println(binaryInstruction)
 	if instructionType == "A" {
 		stringSymblolToInteger, err := strconv.Atoi(parserOutcome["symbol"])
 
@@ -21,11 +20,25 @@ func TranslateAssemblyInstructionToBinary(parserOutcome map[string]string) (uint
 		}
 
 		binaryInstruction = uint16(stringSymblolToInteger)
+		return binaryInstruction, nil
+
+	} else if instructionType == "C" {
+		instructionMarker := uint16(0b111 << 13) /// 1110000000000000
+		parsedDest := parserOutcome["dest"]
+		parsedComp := parserOutcome["comp"]
+		parsedJmp := parserOutcome["jump"]
+
+		dest := data.DestInstructTable[parsedDest]
+		comp := data.CompInstructTable[parsedComp]
+		jmp := data.JumpInstructTable[parsedJmp]
+
+		positionedComp := uint16(comp << 6)
+		positionedDest := uint16(dest << 3)
+		positionedJmp := uint16(jmp << 0)
+		instruction := instructionMarker | positionedComp | positionedDest | positionedJmp
+
+		return instruction, nil
 	}
 
-	return binaryInstruction, nil
-
-	//  convert binary instruction to string and add all zeros
-	// i.e. stringBI = fmt.printf("%15b", binaryInstruction)
-	// otherwise filter the incoming lines to be only the right ones
+	return uint16(0), errors.New("instruction type cannot be identified")
 }
