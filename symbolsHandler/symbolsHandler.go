@@ -2,7 +2,6 @@
 package symbolshandler
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -27,9 +26,7 @@ func HandleSymbols(assebmlyInstructionsWithLabels []string) (assebmlyInstruction
 		cleanAssemblyInstructions = append(cleanAssemblyInstructions, instruction)
 		indexAfterRemovingLabels++
 	}
-	fmt.Println("LabelSymbols", LabelSymbols)
-	fmt.Println("VariableSymbols", VariableSymbols)
-	fmt.Println("MemoryCounter", MemoryCounter)
+
 	return cleanAssemblyInstructions, nil
 }
 

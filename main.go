@@ -1,6 +1,7 @@
 package main
 
 import (
+	parser "assembler-go/parser"
 	pipelines "assembler-go/pipelines"
 	symbolshandler "assembler-go/symbolsHandler"
 	"fmt"
@@ -11,9 +12,11 @@ func main() {
 
 	assebmlyInstructionsWithLabels, err := pipelines.PreProcessData(os.Args[1])
 	check(err)
-	assebmlyInstructionsWithoutLabels, err := symbolshandler.HandleSymbols(assebmlyInstructionsWithLabels)
+	assemblyInstructionsWithoutLabels, err := symbolshandler.HandleSymbols(assebmlyInstructionsWithLabels)
 	check(err)
-	fmt.Println(assebmlyInstructionsWithoutLabels)
+	parsedAssemblyInstructions := parser.ParseAssemblyInstructions(assemblyInstructionsWithoutLabels)
+
+	fmt.Println(parsedAssemblyInstructions)
 }
 
 func check(e error) {
