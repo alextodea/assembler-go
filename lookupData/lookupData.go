@@ -1,4 +1,4 @@
-package data
+package lookupdata
 
 // DestInstructTable is used for decoding of destination symbols within C instructions
 var DestInstructTable = map[string]int{
