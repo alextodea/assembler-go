@@ -3,8 +3,19 @@ package code
 import (
 	"assembler-go/data"
 	"errors"
+	"fmt"
+	"os"
 	"strconv"
 )
+
+// ConvertAssemblyToBinary converts assembly instructions to binary
+func ConvertAssemblyToBinary(binaryInstructions []uint16, outputF *os.File) {
+	for _, binaryValue := range binaryInstructions {
+		stringValue := fmt.Sprintf("%016b\n", binaryValue<<0)
+		outputF.WriteString(stringValue)
+	}
+	return
+}
 
 // TranslateAssemblyInstructionToBinary translates an assembly instruction to binary code
 func TranslateAssemblyInstructionToBinary(parserOutcome map[string]string) (uint16, error) {
@@ -39,6 +50,9 @@ func TranslateAssemblyInstructionToBinary(parserOutcome map[string]string) (uint
 
 		return instruction, nil
 	}
+	// else if instructionType == "L" {
+	// 	test := parserOutcome["symbol"]
+	// }
 
 	return uint16(0), errors.New("instruction type cannot be identified")
 }
