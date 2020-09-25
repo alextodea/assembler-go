@@ -1,6 +1,7 @@
 package main
 
 import (
+	binary "assembler-go/binary"
 	parser "assembler-go/parser"
 	pipelines "assembler-go/pipelines"
 	symbolshandler "assembler-go/symbolsHandler"
@@ -15,8 +16,8 @@ func main() {
 	assemblyInstructionsWithoutLabels, err := symbolshandler.HandleSymbols(assebmlyInstructionsWithLabels)
 	check(err)
 	parsedAssemblyInstructions := parser.ParseAssemblyInstructions(assemblyInstructionsWithoutLabels)
-
-	fmt.Println(parsedAssemblyInstructions)
+	binary.ConvertAssemblyToBinary(parsedAssemblyInstructions, os.Args[1])
+	fmt.Println("Succesfully converted assembly file ", os.Args[1], " to binary")
 }
 
 func check(e error) {

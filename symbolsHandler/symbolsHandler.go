@@ -8,47 +8,52 @@ import (
 
 // HandleSymbols maps labels to their command instruction line numbers, removes labels from instruction set and also maps memory locations to variables
 func HandleSymbols(assebmlyInstructionsWithLabels []string) (assebmlyInstructions []string, err error) {
-	cleanAssemblyInstructions := []string{}
-	indexAfterRemovingLabels := 0
-	for _, instruction := range assebmlyInstructionsWithLabels {
+	assemblyInstructionsNoLabels := mapLabelsToSymbolsTable(assebmlyInstructionsWithLabels)
+	mapAddressesToSymbolTable(assemblyInstructionsNoLabels)
+
+	return assemblyInstructionsNoLabels, nil
+}
+
+func mapLabelsToSymbolsTable(assebmlyInstructionsWithLabels []string) []string {
+	assemblyInstructionsNoLabels := []string{}
+	labelsCounter := 0
+	for index, instruction := range assebmlyInstructionsWithLabels {
 		indexOfLabelOpenParantheses := strings.Index(instruction, "(")
 		if indexOfLabelOpenParantheses > -1 {
-			handleLabel(instruction, indexAfterRemovingLabels)
+			label := strings.ReplaceAll(instruction, "(", "")
+			label = strings.ReplaceAll(label, ")", "")
+			SymbolsTable[label] = index - labelsCounter
+			labelsCounter++
 			continue
 		}
 
-		indexOfAddressSymbol := strings.Index(instruction, "@")
+		assemblyInstructionsNoLabels = append(assemblyInstructionsNoLabels, instruction)
+	}
+	return assemblyInstructionsNoLabels
+}
 
-		if indexOfAddressSymbol > -1 {
-			handleSymbol(instruction, indexAfterRemovingLabels)
+func mapAddressesToSymbolTable(assemblyInstructionsNoLabels []string) {
+	for _, instruction := range assemblyInstructionsNoLabels {
+		isInstructionOfTypeA := strings.Index(instruction, "@")
+		if isInstructionOfTypeA < 0 {
+			continue
 		}
 
-		cleanAssemblyInstructions = append(cleanAssemblyInstructions, instruction)
-		indexAfterRemovingLabels++
+		address := strings.Split(instruction, "@")[1]
+		isSymbol := isLetter(address[0:1])
+
+		if !isSymbol {
+			continue
+		}
+
+		if _, addressExistsInMemory := SymbolsTable[address]; addressExistsInMemory {
+			continue
+		}
+
+		SymbolsTable[address] = MemoryCounter
+		MemoryCounter++
+		continue
 	}
-
-	return cleanAssemblyInstructions, nil
-}
-
-func handleLabel(label string, index int) {
-	LabelSymbols[label] = index
-}
-
-func handleSymbol(instruction string, index int) {
-	address := strings.Split(instruction, "@")[1]
-	isSymbol := isLetter(address[0:1])
-
-	if !isSymbol {
-		return
-	}
-
-	if _, addressExistsInMemory := VariableSymbols[address]; addressExistsInMemory {
-		return
-	}
-
-	VariableSymbols[address] = MemoryCounter
-	MemoryCounter++
-	return
 }
 
 var isLetter = regexp.MustCompile(`^[a-zA-Z]+$`).MatchString

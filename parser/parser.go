@@ -6,28 +6,20 @@ import (
 	"strings"
 )
 
-// ParsedInstruction is a type for struct containing instruction type and value
-type ParsedInstruction struct {
-	instructionType string
-	value           []string
-}
-
 // ParseAssemblyInstructions reads an assembly language command, parses it, and provides convenient access to the command’s components (fields and symbols). In addition, removes all white space and comments.
-func ParseAssemblyInstructions(assemblyInstructionsWithoutLabels []string) []ParsedInstruction {
+func ParseAssemblyInstructions(assemblyInstructionsWithoutLabels []string) [][]string {
 
-	parsedAssemblyInstructions := []ParsedInstruction{}
+	parsedAssemblyInstructions := [][]string{}
 
 	for _, instruction := range assemblyInstructionsWithoutLabels {
 		isAInstruction := strings.Contains(instruction, "@")
 
 		if isAInstruction {
 			decodedInstruction := decodeAInstruction(instruction)
-			aInstruction := ParsedInstruction{instructionType: "A", value: []string{decodedInstruction}}
-			parsedAssemblyInstructions = append(parsedAssemblyInstructions, aInstruction)
+			parsedAssemblyInstructions = append(parsedAssemblyInstructions, []string{"A", decodedInstruction})
 		} else {
 			dest, comp, jump := decodeCInstruction(instruction)
-			cInstruction := ParsedInstruction{instructionType: "C", value: []string{comp, dest, jump}}
-			parsedAssemblyInstructions = append(parsedAssemblyInstructions, cInstruction)
+			parsedAssemblyInstructions = append(parsedAssemblyInstructions, []string{"C", comp, dest, jump})
 		}
 	}
 
@@ -62,7 +54,7 @@ func decodeAInstruction(aInstruction string) (decodeAInstruction string) {
 		return decodedAInstruction
 	}
 
-	decodedSymbolOfAInstruction := symbolsHandler.VariableSymbols[decodedAInstruction]
+	decodedSymbolOfAInstruction := symbolsHandler.SymbolsTable[decodedAInstruction]
 	return strconv.Itoa(decodedSymbolOfAInstruction)
 
 }
