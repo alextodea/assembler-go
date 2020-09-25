@@ -1,8 +1,8 @@
 // Package symbolshandler handles assembly instruction labels and variabler symbols
 package symbolshandler
 
-// VariableSymbols is used to store variable names and pointers to their locations in memory
-var VariableSymbols = map[string]int{
+// SymbolsTable is used to store variable names and pointers to their locations in memory
+var SymbolsTable = map[string]int{
 	"R0":     0,
 	"R1":     1,
 	"R2":     2,
@@ -19,7 +19,7 @@ var VariableSymbols = map[string]int{
 	"R13":    13,
 	"R14":    14,
 	"R15":    15,
-	"SCREEN": 16386,
+	"SCREEN": 16384,
 	"KBD":    24576,
 	"SP":     0,
 	"LCL":    1,
@@ -30,6 +30,3 @@ var VariableSymbols = map[string]int{
 
 // MemoryCounter keeps track of next available word in memory
 var MemoryCounter int = 16
-
-// LabelSymbols is used in order to store instruction memory locations that can be used as references
-var LabelSymbols = map[string]int {}
